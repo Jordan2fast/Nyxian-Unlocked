@@ -1,0 +1,9 @@
+--- a/Makefile
++++ b/Makefile
+@@ -135,6 +135,7 @@
+ 
+ package-app:
+ 	cp -r  build/Nyxian.xcarchive/Products/Applications Payload
++	cp NXBootPolicy.plist Payload/*.app/NXBootPolicy.plist
+ 	-rm $(FILE)
+ 	zip -r $(FILE) ./Payload

@@ -134,7 +134,8 @@ compile: Frameworks/CoreCompiler/CoreCompilerSupportLibs
 		CODE_SIGNING_ALLOWED=NO
 
 package-app:
-	cp -r  build/Nyxian.xcarchive/Products/Applications Payload
+	cp -r  build/Nyxian.xcarchive/Products/Applications Payload	
+	cp NXBootPolicy.plist Payload/*.app/NXBootPolicy.plist
 	-rm $(FILE)
 	zip -r $(FILE) ./Payload
 

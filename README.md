@@ -1,13 +1,8 @@
 <div align="center">
-  <h1><b>Nyxian</b></h1>
-  <p><i>A full native IDE and a userspace microkernel for building and running iOS apps entirely on-device. offline, unjailbroken, iOS 18.0 all the way through iOS 27.2 Beta 2</i></p>
+  <h1><b>Nyxian-Unlocked</b></h1>
+  <p><i>A full native IDE and a userspace microkernel for building and running iOS apps entirely on-device. offline, unjailbroken, iOS 18.0 all the way through iOS 27.3 Beta 1 (At least for Nyxian-Unlocked), this is a unstable forked version of 12.0 that will be MAINTAINED BY ME AND ME ONLY, besides that this is to disable the TrustStore and possibly more???</i></p>
 </div>
-<h6 align="center">
-  <a href="https://fluxer.gg/PLQlvDkC"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ffluxer.com%2Fapi%2Fv1%2Finvites%2FPLQlvDkC&query=member_count&suffix=%20members&style=for-the-badge&logo=fluxer&label=Fluxer&color=%234641D9" alt="Fluxer invite"></a>
-  <a href="https://github.com/emexlab/emexDE/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/emexlab/emexDE/build.yml?style=for-the-badge&amp;logo=github" /></a>
-</h6>
-<p align="center">
-  <img src="./mockup.png">
+
 </p>
 
 ## What is it?

@@ -1,0 +1,80 @@
+name: Build LLVM libs
+
+# Builds LLVM-On-iOS once and publishes the result to a GitHub release, so the
+# normal build (build-prebuilt.yml) can download it instead of compiling LLVM.
+# Re-run this whenever the LLVM-On-iOS submodule commit changes.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-llvm-libs
+  cancel-in-progress: false
+
+env:
+  LLVM_RELEASE_TAG: llvm-libs
+
+jobs:
+  llvm:
+    name: Build and publish LLVM support libs
+    runs-on: macos-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Work out asset name
+        run: |
+          set -e
+          SHA=$(git rev-parse --short=12 HEAD:LLVM-On-iOS)
+          echo "LLVM_ASSET=CoreCompilerSupportLibs-$SHA.tar.xz" >> "$GITHUB_ENV"
+
+      - name: Install dependencies
+        run: |
+          set -e
+          brew install cmake ninja pkgconf openssl libarchive dpkg ldid
+
+      - name: Build LLVM-On-iOS
+        run: |
+          set -e
+          make Frameworks/CoreCompiler/CoreCompilerSupportLibs
+
+      - name: Package
+        run: |
+          set -e
+          tar -cJf "$LLVM_ASSET" -C Frameworks/CoreCompiler CoreCompilerSupportLibs
+          ls -lh "$LLVM_ASSET"
+          shasum -a 256 "$LLVM_ASSET"
+
+      - name: Upload workflow artifact (backup copy)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.LLVM_ASSET }}
+          path: ${{ env.LLVM_ASSET }}
+          compression-level: 0
+          retention-days: 14
+
+      - name: Publish to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          SIZE=$(stat -f%z "$LLVM_ASSET")
+          if [ "$SIZE" -ge 2147483648 ]; then
+            echo "::error::$LLVM_ASSET is $SIZE bytes, over GitHub's 2 GiB release asset limit. Download it from the workflow artifact instead."
+            exit 1
+          fi
+          if ! gh release view "$LLVM_RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$LLVM_RELEASE_TAG" \
+              --title "LLVM support libs" \
+              --notes "Prebuilt LLVM support libs used by the CI build. Created by the Build LLVM libs workflow." \
+              --target "$GITHUB_SHA" \
+              --latest=false
+          fi
+          gh release upload "$LLVM_RELEASE_TAG" "$LLVM_ASSET" --clobber

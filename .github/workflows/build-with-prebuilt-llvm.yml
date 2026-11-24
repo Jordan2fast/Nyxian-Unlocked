@@ -1,0 +1,75 @@
+name: Build iOS App (prebuilt LLVM)
+
+# Same build as build.yml, but downloads the LLVM support libs published by
+# the "Build LLVM libs" workflow instead of compiling LLVM on every run.
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  LLVM_RELEASE_TAG: llvm-libs
+
+jobs:
+  build:
+    name: Build and Package
+    runs-on: macos-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Extract version
+        run: |
+          VERSION=$(awk -F'=' '/^[[:space:]]*VERSION[[:space:]]*=/ {gsub(/[[:space:]]/,"",$2); print $2; exit}' Config.xcconfig)
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Install Dependencies
+        run: |
+          set -e
+
+          # Packages we desperately need
+          brew install ldid dpkg libarchive
+
+      - name: Fetch prebuilt LLVM support libs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          SHA=$(git rev-parse --short=12 HEAD:LLVM-On-iOS)
+          ASSET="CoreCompilerSupportLibs-$SHA.tar.xz"
+          if ! gh release download "$LLVM_RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern "$ASSET" --dir "$RUNNER_TEMP"; then
+            echo "::error::No prebuilt LLVM libs named $ASSET on release '$LLVM_RELEASE_TAG'. Run the 'Build LLVM libs' workflow first (re-run it whenever the LLVM-On-iOS submodule changes)."
+            exit 1
+          fi
+          mkdir -p Frameworks/CoreCompiler
+          rm -rf Frameworks/CoreCompiler/CoreCompilerSupportLibs
+          tar -xJf "$RUNNER_TEMP/$ASSET" -C Frameworks/CoreCompiler
+          test -d Frameworks/CoreCompiler/CoreCompilerSupportLibs/LLVM.xcframework
+
+      - name: Build Nyxian
+        run: |
+          set -e
+
+          CHECK_DEPS=0 make all
+
+      - name: Upload Nyxian
+        uses: actions/upload-artifact@v7
+        with:
+          path: Nyxian.ipa
+          archive: false

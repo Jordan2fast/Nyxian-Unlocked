@@ -60,21 +60,4 @@ jobs:
           compression-level: 0
           retention-days: 14
 
-      - name: Publish to release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -e
-          SIZE=$(stat -f%z "$LLVM_ASSET")
-          if [ "$SIZE" -ge 2147483648 ]; then
-            echo "::error::$LLVM_ASSET is $SIZE bytes, over GitHub's 2 GiB release asset limit. Download it from the workflow artifact instead."
-            exit 1
-          fi
-          if ! gh release view "$LLVM_RELEASE_TAG" >/dev/null 2>&1; then
-            gh release create "$LLVM_RELEASE_TAG" \
-              --title "LLVM support libs" \
-              --notes "Prebuilt LLVM support libs used by the CI build. Created by the Build LLVM libs workflow." \
-              --target "$GITHUB_SHA" \
-              --latest=false
-          fi
           gh release upload "$LLVM_RELEASE_TAG" "$LLVM_ASSET" --clobber

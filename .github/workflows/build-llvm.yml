@@ -1,7 +1,5 @@
 name: Build LLVM libs
 
-# Builds LLVM-On-iOS once and publishes the result to a GitHub release, so the
-# normal build (build-prebuilt.yml) can download it instead of compiling LLVM.
 # Re-run this whenever the LLVM-On-iOS submodule commit changes.
 
 on:

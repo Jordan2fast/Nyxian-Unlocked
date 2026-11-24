@@ -52,12 +52,10 @@ jobs:
           ls -lh "$LLVM_ASSET"
           shasum -a 256 "$LLVM_ASSET"
 
-      - name: Upload workflow artifact (backup copy)
+      - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.LLVM_ASSET }}
           path: ${{ env.LLVM_ASSET }}
           compression-level: 0
           retention-days: 14
-
-          gh release upload "$LLVM_RELEASE_TAG" "$LLVM_ASSET" --clobber

@@ -40,12 +40,6 @@ jobs:
         run: |
           set -e
 
-      - name: Download prebuilt LLVM support libs
-        run: |
-          curl -fL -o libs.tar.xz "https://github.com/Jordan2fast/Nyxian-Unlocked/releases/download/llvm-libs/CoreCompilerSupportLibs.tar.xz"
-          mkdir -p Frameworks/CoreCompiler
-          tar -xJf libs.tar.xz -C Frameworks/CoreCompiler
-
       - name: Build Nyxian
         timeout-minutes: 1200
         run: |

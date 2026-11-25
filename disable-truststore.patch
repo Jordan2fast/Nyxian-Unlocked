@@ -4,6 +4,7 @@
  
  package-app:
  	cp -r  build/Nyxian.xcarchive/Products/Applications Payload
-+	cp NXBootPolicy.plist Payload/*.app/NXBootPolicy.plist
++	cp NXBootPolicy.plist Payload/*.app/
  	-rm $(FILE)
  	zip -r $(FILE) ./Payload
+ 

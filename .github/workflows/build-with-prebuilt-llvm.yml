@@ -44,7 +44,7 @@ jobs:
 
       - name: Download prebuilt LLVM support libs
         run: |
-          curl -fL -o libs.tar.xz "https://github.com/Jordan2fast/Nyxian-Unlocked/releases/download/llvm-libs/CoreCompilerSupportLibs.tar.xz"
+          curl -fL -o libs.tar.xz "https://github.com/Jordan2fast/Nyxian-Unlocked/releases/download/llvm-libs/CoreCompilerSupportLibs-5c2e215abf1f.tar.xz"
           mkdir -p Frameworks/CoreCompiler
           tar -xJf libs.tar.xz -C Frameworks/CoreCompiler
 
